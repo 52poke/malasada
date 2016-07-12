@@ -15,8 +15,11 @@
     "babel-preset-es2015-node6": "^0.2.0",
     "babel-preset-stage-1": "^6.5.0",
     "cwebp": "^2.0.1",
+    "header-case-normalizer": "^1.0.3",
     "koa": "^2.0.0",
-    "lodash": "^4.13.1"
+    "koa-send": "^3.2.0",
+    "lodash": "^4.13.1",
+    "mz": "^2.4.0"
   },
   "repository": {
     "type": "git",
