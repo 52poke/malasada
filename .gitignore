@@ -1,0 +1,7 @@
+.DS_Store
+node_modules
+cache
+config.json
+*.sublime-project
+*.sublime-workspace
+@eaDir
