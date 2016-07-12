@@ -14,6 +14,7 @@ const queue = new Queue();
 
 const cacheRootPath = path.join(__dirname, 'cache');
 const tmpPath = path.join(cacheRootPath, 'tmp');
+const writing = [];
 
 app.use(async (ctx, next) => {
   // Send the cached WebP file
@@ -41,11 +42,20 @@ app.use(async (ctx, next) => {
 
   ctx.body = response.data;
 
+  if (writing.includes(hash) || queue.has(ctx.path)) {
+    return;
+  }
+
   // Save the original file
   const stream = fs.createWriteStream(path.join(tmpPath, hash));
   response.data.pipe(stream);
 
-  stream.on('finish', function () {
+  stream.on('error', () => {
+    _.remove(writing, hash);
+  });
+
+  stream.on('close', () => {
+    _.remove(writing, hash);
     // Create the WebP file
     if (!queue.has(ctx.path)) {
       queue.add(ctx.path);
