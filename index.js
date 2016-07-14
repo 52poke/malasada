@@ -17,6 +17,16 @@ const tmpPath = path.join(cacheRootPath, 'tmp');
 const writing = [];
 
 app.use(async (ctx, next) => {
+  if (ctx.path.indexOf('/purge/') === 0) {
+    const hash = crypto.createHash('md5').update(ctx.path.substr(6)).digest('hex');
+    const filepath = path.join(hash.substr(0, 1), hash.substr(0, 2), hash + '.webp');
+    if (await fs.exists(path.join(cacheRootPath, filepath))) {
+      await fs.unlink(path.join(cacheRootPath, filepath));
+    }
+    ctx.body = null;
+    return;
+  }
+  
   // Send the cached WebP file
   const hash = crypto.createHash('md5').update(ctx.path).digest('hex');
   const filepath = path.join(hash.substr(0, 1), hash.substr(0, 2), hash + '.webp');
