@@ -49,6 +49,7 @@ app.use(async (ctx, next) => {
   _.each(response.headers, (value, key) => {
     ctx.set(normalizeHeaderCase(key), value);
   });
+  ctx.set('Cache-Control', 'private');
 
   ctx.body = response.data;
 
