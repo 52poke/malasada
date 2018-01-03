@@ -14,6 +14,16 @@ A reverse proxy server to convert, cache and respond images in WebP format. Can 
 
 You'll need to install WebP binaries on your server, please see [node-webp](https://www.npmjs.com/package/cwebp) manual for installation.
 
+### Docker
+
+You can also run malasada with Docker:
+
+```bash
+docker run --name malasada -p 80:3002 -v /path/to/config.json:/app/config.json -v /path/to/cache:/app/cache -d mudkip/malasada
+```
+
+Replace `/path/to` with the correct location of `config.json` and cache.
+
 ## Configruation
 
 A `config.json` file is required to run this program.
@@ -22,7 +32,7 @@ A `config.json` file is required to run this program.
 {
     "backendType": "remote",
     "backend": "http://upload.wikimedia.org",
-    "maxAge": 3628800 * 1000,
+    "maxAge": 3628800000,
     "forceWebP": false,
     "cacheRootPath": "/var/cache/malasada",
     "requestHeaders": {},
@@ -65,6 +75,6 @@ A `PURGE` request, or a `GET` request with `/purge` prefix can be used to delete
 
 ## Notice
 
-While this program is currently used on [52Poké Wiki](https://wiki.52poke.com/) to handle hundreds of thousands requests daily. It currently lacks tests and significant features such as proper cache control and cache size management.
+While the sweet [malasada](https://wiki.52poke.com/wiki/%E9%A6%AC%E6%8B%89%E8%96%A9%E9%81%94%E9%80%A3%E9%8E%96%E5%BA%97) is used on [52Poké Wiki](https://wiki.52poke.com/) to handle hundreds of thousands requests daily. It currently lacks tests and significant features such as proper cache control and cache size management.
 
 Pull requests and issues are welcome.
