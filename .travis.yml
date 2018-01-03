@@ -1,0 +1,10 @@
+language: node_js
+node_js: stable
+script: "npm run lint"
+deploy:
+  provider: npm
+  email: i@mudkip.me
+  api_key:
+    secure: hZCcrRty+0ocE9BUZ7gA0G6XxPhD2b+RZDB7qcPilejcTDq8n8WtSg5iRu17Y1OqteNEtrNp4mBr05R90v2FJyn0vMXJ3TZ11geHK23a5txCleRYV4drK0zh1QUrNQDFqfop8O6OFlW+zu7tVlGs44XTEEw79ujckA0d6dw1CbtqTnB0lI0pDdjkixf05Zd3CFi77vuV9BMih9dvWxrX42V73mUuE6mxSu59qMx6GZ8dvw7b6A9fTHs6DJxG3Vz/REekxrUH2Kw4XxxOs2LQ7bEB2CLMrogpyRhIRn+OdGHDkvPG8ixPgwP+c1IYk+GDvkTRojm726oYGdX6kQRBbzafz7srUlLqTbrYs9u9+JuhgttcUixZ8fx0fgYSxBB1HfSsJGiO1Z21/hKeKIa3qazsvMxsR0xdHSDhlLDMhs8YRJqug9OfOT8JuZEOsEHpwBQR+6jZJ0ZK8Xsvveabc/aRIlSofs7FNr7RjcLPX+cEmsAlBMJ8OtWrqrKH2mdCCBwyS54x9rEgVSgnukbqGc3gXeUbItIaTxUA4PZogzRzmZf8TyX0ITodTTUIqGRxBJ/1Spxsf/0cfn3USSI+8LkVtTio73KJukITY2nhczfPAdQuguP+JLeFhgNzB84AyOw4OswKhlZt2JS72f+d1Mhmy8dZbpkl9Yd0rpWt3QE=
+  on:
+    tags: true
