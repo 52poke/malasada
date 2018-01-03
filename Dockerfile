@@ -6,8 +6,7 @@ WORKDIR /app
 COPY package.json /app/
 COPY package-lock.json /app/
 
-RUN apk update && apk add --update bash curl
-RUN curl -s https://raw.githubusercontent.com/Intervox/node-webp/latest/bin/install_webp | bash
+RUN apk update && apk add --update libwebp-tools
 RUN npm install && npm cache clean --force
 
 COPY . /app
