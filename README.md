@@ -43,7 +43,7 @@ A `config.json` file is required to run this program.
 
 * **backendType**: Can be `remote` or `local`.
 * **backend**: May be a http or https host when `backendType` is `remote`, or a local directory when `backendType` is `local`. **Required.**
-* **maxAge**: The max age (in second) sent to browsers.
+* **maxAge**: The max age (in milliseconds) sent to browsers.
 * **forceWebP**: When is true, the server always response WebP images when possible, otherwise it only respond WebP images when it is accepted by browsers in `Accept` header.
 * **cacheRootPath**: Where the cache files saves, defaults to `cache` directory of this program.
 * **requestHeaders**: Additional headers sent to backend, only useful when `backendType` is `remote`.
@@ -75,6 +75,6 @@ A `PURGE` request, or a `GET` request with `/purge` prefix can be used to delete
 
 ## Notice
 
-While the sweet [malasada](https://wiki.52poke.com/wiki/%E9%A6%AC%E6%8B%89%E8%96%A9%E9%81%94%E9%80%A3%E9%8E%96%E5%BA%97) is used on [52Poké Wiki](https://wiki.52poke.com/) to handle hundreds of thousands requests daily. It currently lacks tests and significant features such as proper cache control and cache size management.
+While the sweet [malasada](https://wiki.52poke.com/wiki/%E9%A6%AC%E6%8B%89%E8%96%A9%E9%81%94%E9%80%A3%E9%8E%96%E5%BA%97) is used on [52Poké Wiki](https://wiki.52poke.com/) to handle hundreds of thousands requests daily, it currently lacks tests and significant features such as proper cache control and cache size management.
 
 Pull requests and issues are welcome.
