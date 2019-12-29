@@ -1,0 +1,53 @@
+service:
+  name: malasada
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'ap-northeast-1'}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:GetObject"
+      Resource: "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/*"
+    - Effect: "Allow"
+      Action:
+        - "s3:PutObject"
+      Resource:
+        - "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/wiki/thumb/*"
+        - "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/webp-cache/*"
+    - Effect: "Allow"
+      Action:
+        - "s3:DeleteObject"
+      Resource: "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/webp-cache/*"
+  environment:
+    BUCKET: ${opt:bucket, 'media.52poke.com'}
+    REGION: ${opt:region, 'ap-northeast-1'}
+  apiGateway:
+    binaryMediaTypes:
+      - '*/*'
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+functions:
+  resize:
+    handler: src/handlers/resizer/index.handler
+    events:
+      - http:
+          path: /wiki/thumb/{any+}
+          method: get
+  webp:
+    handler: src/handlers/webp/index.handler
+    events:
+      - http:
+          path: /webp/{any+}
+          method: get
+  webp-purge:
+    handler: src/handlers/webp/purge.handler
+    events:
+      - http:
+          path: /webp/{any+}
+          method: delete

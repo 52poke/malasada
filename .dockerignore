@@ -1,6 +1,4 @@
-.git
-.DS_Store
+.build
+.serverless
+secrets/secrets.env
 node_modules
-cache
-/config.json
-npm-debug.log

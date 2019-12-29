@@ -2,79 +2,165 @@ malasada
 [![Malasada](https://cdn.bulbagarden.net/upload/8/8e/Bag_Big_Malasada_Sprite.png)](https://bulbapedia.bulbagarden.net/wiki/Malasada)
 =========
 
-[![NPM version](https://img.shields.io/npm/v/malasada.svg)](https://npmjs.org/package/malasada)
-[![build status](https://img.shields.io/travis/mudkipme/malasada.svg)](https://travis-ci.org/mudkipme/malasada)
-[![node version](https://img.shields.io/badge/node.js-%3E=_8.5-green.svg)](https://nodejs.org/en/download/)
+A serverless function to resize and convert images on [52Poké Wiki](https://wiki.52poke.com/).
 
-A reverse proxy server to convert, cache and respond images in WebP format. Can be used standalone or as a [Koa](http://koajs.com) middleware.
+It is inspired by [this example](https://github.com/serverless/examples/tree/master/aws-node-dynamic-image-resizer) of Serverless Framework, and contains two features:
 
-## Install
+- Generate thumbnails for media files on MediaWiki
+- Convert images to WebP to reduce bandwidth costs
 
-[![NPM](https://nodei.co/npm/malasada.png?downloads=true)](https://nodei.co/npm/malasada/)
+On Wikimedia wikis, [Thumbor](https://wikitech.wikimedia.org/wiki/Thumbor) is used for similar tasks.
 
-You'll need to install WebP binaries on your server, please see [node-webp](https://www.npmjs.com/package/cwebp) manual for installation.
+## Pre-requisites
 
-### Docker
+This function is designed for use on [MediaWiki](https://www.mediawiki.org/) installations which have [AWS extension](https://www.mediawiki.org/wiki/Extension:AWS) configured to store images in S3. You also need the following:
 
-You can also run malasada with Docker:
+* [AWS Credentials](https://serverless.com/framework/docs/providers/aws/guide/credentials/) for Serverless Framework.
+* Docker and docker-compose installed locally.
 
-```bash
-docker run --name malasada -p 80:3002 -v /path/to/config.json:/app/config.json -v /path/to/cache:/app/cache -d mudkip/malasada
+## Deployment
+
+### MediaWiki
+
+This function assumes the images is stored in `wiki/` path in a single S3 bucket, `hashLevels` be `2`, and generating thumbnail on parse be disabled.
+
+```php
+$wgFileBackends['s3'] = [
+    'class'              => 'AmazonS3FileBackend',
+    'name'               => 'AmazonS3',
+    'wikiId'             => 'wiki',
+    'lockManager'        => 'redisLockManager',  // remove this if a lock manager isn't in use
+    'containerPaths'     => [
+        'wiki-local-public'  => '<s3-bucket>/wiki',
+        'wiki-local-thumb'   => '<s3-bucket>/wiki/thumb',
+        'wiki-local-temp'    => '<s3-bucket>/wiki/temp',
+        'wiki-local-deleted' => '<s3-bucket>/wiki/deleted',
+    ]
+];
+
+$wgLocalFileRepo  =  [
+    'class'              => 'LocalRepo',
+    'name'               => 'local',
+    'backend'            => 'AmazonS3',
+    'scriptDirUrl'       => $wgScriptPath,
+    'url'                => wfScript( 'img_auth' ),
+    'hashLevels'         => 2,
+    'deletedHashLevels'  => 3,
+    'zones'             =>  [
+        'public'  => [ 'url' => 'https://<s3-public-url>/wiki' ],
+        'thumb'   => [ 'url' => 'https://<s3-public-url>/wiki/thumb' ],
+        'temp'    => [ 'url' => false ],
+        'deleted' => [ 'url' => false ]
+    ],
+    'transformVia404' => true
+];
+
+$wgGenerateThumbnailOnParse = false;
+
+wfLoadExtension( 'AWS' );
+$wgAWSCredentials = [
+        'key'    => '<aws-api-key>',
+        'secret' => '<aws-secret-key>',
+        'token'  => false
+];
+$wgAWSRegion = '<s3-region>';
 ```
 
-Replace `/path/to` with the correct location of `config.json` and cache.
+On 52Poké Wiki, we serve original images for logged-in users, and WebP-compressed images for anonymous users. This is configured via [Lazyload](https://github.com/mudkipme/mediawiki-lazyload#configuration) extension.
 
-## Configruation
+### Malasada
 
-A `config.json` file is required to run this program.
+1. Clone this repository and add AWS credentials and S3 configuration into `secrets/secrets.env` file.
 
-```json
-{
-    "backendType": "remote",
-    "backend": "http://upload.wikimedia.org",
-    "maxAge": 3628800000,
-    "forceWebP": false,
-    "cacheRootPath": "/var/cache/malasada",
-    "requestHeaders": {},
-    "queue": 1,
-    "port": 3002
-  }
+2. Deploy malasada:
+
+```
+docker-compose up --build
 ```
 
-* **backendType**: Can be `remote` or `local`.
-* **backend**: May be a http or https host when `backendType` is `remote`, or a local directory when `backendType` is `local`. **Required.**
-* **maxAge**: The max age (in milliseconds) sent to browsers.
-* **forceWebP**: When is true, the server always response WebP images when possible, otherwise it only respond WebP images when it is accepted by browsers in `Accept` header.
-* **cacheRootPath**: Where the cache files saves, defaults to `cache` directory of this program.
-* **requestHeaders**: Additional headers sent to backend, only useful when `backendType` is `remote`.
-* **queue**: Simultaneous WebP conversion tasks, defaults to `1`.
-* **port**: The listen port of the server, only useful when used standalone.
+### Nginx
 
-## Usage
+Nginx (or any other front-end web server) needs to be configured to proxy requests to S3 and handle 404 errors to this lambda function.
 
-When installed globally, it can be run with `malasada --config config.json`.
+This example uses separated domain for original and WebP images, but `Accept` header may also be considered to use.
 
-You can also use it as a middleware in your Koa instance:
-```js
-const Koa = require('koa');
-const malasada = require('malasada');
+#### For domains without WebP compression:
 
-const app = new Koa();
-app.use(malasada(config));
+```nginx
+location / {
+    add_header Access-Control-Allow-Methods GET;
+    proxy_pass http://<s3-bucket>.<s3-region>.amazonaws.com;
+    proxy_redirect     off;
+}
+
+location ~ ^/wiki/thumb/(archive/)?[0-9a-f]/[0-9a-f][0-9a-f]/([^/]+)/([0-9]+)px-.*$ {
+    proxy_pass http://<s3-bucket>.<s3-region>.amazonaws.com;
+    proxy_redirect     off;
+    proxy_intercept_errors on;
+    error_page     404 502 504 = @thumb;
+}
+
+location @thumb {
+    internal;
+    proxy_pass         https://<api-gateway-endpoint>/<api-gateway-stage>$request_uri;
+    proxy_ssl_server_name on;
+}
+
+location ~ ^/wiki/deleted/ {
+    deny all;
+}
 ```
 
-Remember this program is not designed to be a full-featured reverse proxy, the backend server should only be a static file server.
+#### For domains with WebP compression:
 
-### Cache Deletion
+```nginx
+location / {
+    proxy_pass http://<s3-bucket>.<s3-region>.amazonaws.com/webp-cache$request_uri;
+    proxy_redirect     off;
+    proxy_intercept_errors on;
+    error_page     404 502 504 = @webp;
+    break;
+}
 
-A `PURGE` request, or a `GET` request with `/purge` prefix can be used to delete cache of a certain path.
+location @webp {
+    internal;
+    proxy_pass https://<api-gateway-endpoint>/<api-gateway-stage>/webp$request_uri;
+    proxy_ssl_server_name on;
+}
+
+location ~ ^/wiki/deleted/ {
+    deny all;
+}
+```
+
+### Cache Purging
+
+WebP cache needs be deleted when the upstream media file is updated. A `DELETE` request can be sent to `https://<api-gateway-endpoint>/<api-gateway-stage>/webp/<s3 object path>` to delete the WebP cache.
+
+On 52Poké Wiki, we use [timburr](https://github.com/mudkipme/timburr) to handle cache purging.
+
+```yaml
+purge:
+  entries:
+  - host: <s3-public-url>
+    method: DELETE
+    uris:
+    - "https://<api-gateway-endpoint>/<api-gateway-stage>/webp#url#"
+
+rules:
+- name: purge
+  topic: cdn-url-purges
+  taskType: purge
+```
+
+## Configuration
+
+Bucket and region settings can be configured via `secrets/secrets.env`. Feel free to look into and modify the TypeScript files and `serverless.yml` to customize this project for your own needs.
+
+## Limitation
+
+Currently malasada don't prevent simultaneous requests for generating same object. A locking mechanism (either based on SQS or DynamoDB) may be considered to implement.
 
 ## License
 
 [MIT](LICENSE)
-
-## Notice
-
-While the sweet [malasada](https://wiki.52poke.com/wiki/%E9%A6%AC%E6%8B%89%E8%96%A9%E9%81%94%E9%80%A3%E9%8E%96%E5%BA%97) is used on [52Poké Wiki](https://wiki.52poke.com/) to handle hundreds of thousands requests daily, it currently lacks tests and significant features such as proper cache control and cache size management.
-
-Pull requests and issues are welcome.

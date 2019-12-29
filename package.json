@@ -1,52 +1,40 @@
 {
   "name": "malasada",
-  "version": "0.2.0",
-  "description": "A reverse proxy server to convert, cache and response images in WebP format.",
-  "main": "./index",
-  "module": "./index.mjs",
+  "version": "0.3.0",
+  "description": "A serverless function to resize and convert images on 52Poké Wiki.",
   "scripts": {
-    "start": "node --experimental-modules main.mjs",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint --ext .js,.mjs ."
-  },
-  "bin": {
-    "malasada": "./main"
-  },
-  "keywords": [
-    "webp",
-    "koa",
-    "middleware"
-  ],
-  "author": {
-    "name": "Mudkip",
-    "email": "i@mudkip.me",
-    "url": "https://mudkip.me"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "@std/esm": "^0.18.0",
-    "axios": "^0.17.1",
-    "commander": "^2.12.2",
-    "cwebp": "^2.0.2",
-    "header-case-normalizer": "^1.0.3",
-    "koa": "^2.4.1",
-    "koa-send": "^4.1.2",
-    "lodash": "^4.17.4",
-    "mime-types": "^2.1.17",
-    "mz": "^2.7.0"
+    "start": "sls offline"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mudkipme/malasada.git"
+    "url": "git+https://github.com/mudkipme/malasada.git"
   },
+  "keywords": [
+    "serverless",
+    "lambda",
+    "webp",
+    "sharp"
+  ],
+  "author": "Mudkip",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/mudkipme/malasada/issues"
   },
-  "homepage": "https://github.com/mudkipme/malasada",
-  "engines": {
-    "node": ">=8.5"
-  },
+  "homepage": "https://github.com/mudkipme/malasada#readme",
   "devDependencies": {
-    "eslint": "^4.14.0"
+    "@types/aws-lambda": "^8.10.39",
+    "@types/concat-stream": "^1.6.0",
+    "@types/http-errors": "^1.6.3",
+    "@types/sharp": "^0.23.1",
+    "aws-sdk": "^2.596.0",
+    "serverless": "^1.60.0",
+    "serverless-offline": "^5.12.1",
+    "serverless-plugin-typescript": "^1.1.9",
+    "typescript": "^3.7.3"
+  },
+  "dependencies": {
+    "concat-stream": "^2.0.0",
+    "http-errors": "^1.7.3",
+    "sharp": "^0.23.4"
   }
 }

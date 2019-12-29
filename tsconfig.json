@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "sourceMap": true,
+        "target": "es2017",
+        "module": "commonjs",
+        "outDir": ".build",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "lib": [
+            "es2015"
+        ],
+        "rootDir": "./"
+    }
+}

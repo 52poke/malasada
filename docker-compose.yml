@@ -1,0 +1,6 @@
+version: '3'
+services:
+  malasada:
+    build: .
+    env_file:
+      - ./secrets/secrets.env
