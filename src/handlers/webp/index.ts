@@ -33,7 +33,7 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
         }
 
         const match = path.match(thumbRegex);
-        if (!match || match[3] !== match[5]) {
+        if (!match) {
             return {
                 statusCode: 404,
                 body: JSON.stringify({

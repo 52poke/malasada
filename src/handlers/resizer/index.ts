@@ -5,7 +5,7 @@ import { existS3 } from '../../utils/s3';
 
 export const handler: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     const match = event.path.match(thumbRegex);
-    if (!match || match[3] !== match[5]) {
+    if (!match) {
         return {
             statusCode: 400,
             body: JSON.stringify({
@@ -14,9 +14,10 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
         };
     }
     const fileName = decodeURIComponent(match[3]);
+    const targetFileName = decodeURIComponent(match[5]);
     const source = `wiki/${match[1] || ''}${match[2]}/${fileName}`;
     const width = parseInt(match[4], 10);
-    let target = `wiki/thumb/${match[1] || ''}${match[2]}/${fileName}/${width}px-${fileName}`;
+    let target = `wiki/thumb/${match[1] || ''}${match[2]}/${fileName}/${width}px-${targetFileName}`;
 
     try {
         const targetExists = await existS3(target);
