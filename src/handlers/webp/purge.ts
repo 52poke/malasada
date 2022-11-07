@@ -1,15 +1,16 @@
-import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import { HttpError } from 'http-errors';
 import { deleteS3, existS3 } from '../../utils/s3';
 
-export const handler: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
-    if (!event.path.match(/^\/webp\//)) {
+export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatewayProxyResultV2> => {
+    if (!event.rawPath.match(/^\/webp\//)) {
         return {
             statusCode: 400,
             body: 'invalid request',
         };
     }
-    const path = event.path.substr(5);
-    const key = decodeURIComponent(path.substr(1));
+    const path = event.rawPath.substring(5);
+    const key = decodeURIComponent(path.substring(1));
     try {
         const target = `webp-cache/${key}`;
         const targetExists = await existS3(target);
@@ -26,9 +27,9 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
         };
     } catch (e) {
         return {
-            statusCode: e.statusCode || 500,
+            statusCode: (e as HttpError).statusCode || 500,
             body: JSON.stringify({
-                error: e.message || JSON.stringify(e),
+                error: (e as HttpError).message || JSON.stringify(e),
             }),
         };
     }

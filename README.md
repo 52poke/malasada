@@ -1,5 +1,5 @@
 malasada
-[![Malasada](https://cdn.bulbagarden.net/upload/8/8e/Bag_Big_Malasada_Sprite.png)](https://bulbapedia.bulbagarden.net/wiki/Malasada)
+[![Malasada](https://archives.bulbagarden.net/media/upload/8/8e/Bag_Big_Malasada_Sprite.png)](https://bulbapedia.bulbagarden.net/wiki/Malasada)
 =========
 
 A serverless function to resize and convert images on [52Poké Wiki](https://wiki.52poke.com/).
@@ -16,7 +16,6 @@ On Wikimedia wikis, [Thumbor](https://wikitech.wikimedia.org/wiki/Thumbor) is us
 This function is designed for use on [MediaWiki](https://www.mediawiki.org/) installations which have [AWS extension](https://www.mediawiki.org/wiki/Extension:AWS) configured to store images in S3. You also need the following:
 
 * [AWS Credentials](https://serverless.com/framework/docs/providers/aws/guide/credentials/) for Serverless Framework.
-* Docker and docker-compose installed locally.
 
 ## Deployment
 
@@ -70,19 +69,19 @@ On 52Poké Wiki, we serve original images for logged-in users, and WebP-compress
 
 ### Malasada
 
-1. Clone this repository and add AWS credentials and S3 configuration into `secrets/secrets.env` file.
+1. Set up [AWS cridentials for Serverless](https://www.serverless.com/framework/docs/providers/aws/guide/credentials/).
 
 2. Deploy malasada:
 
 ```
-docker-compose up --build
+sls deploy --stage ${STAGE} --bucket ${BUCKET} --region ${REGION}
 ```
 
 ### Nginx
 
 Nginx (or any other front-end web server) needs to be configured to proxy requests to S3 and handle 404 errors to this lambda function.
 
-This example uses separated domain for original and WebP images, but `Accept` header may also be considered to use.
+This example uses separated domain for original and WebP images, but `Accept` header may be preferred.
 
 #### For domains without WebP compression:
 
@@ -155,11 +154,7 @@ rules:
 
 ## Configuration
 
-Bucket and region settings can be configured via `secrets/secrets.env`. Feel free to look into and modify the TypeScript files and `serverless.yml` to customize this project for your own needs.
-
-## Limitation
-
-Currently malasada don't prevent simultaneous requests for generating same object. A locking mechanism (either based on SQS or DynamoDB) may be considered to implement.
+Feel free to look into and modify the TypeScript files and `serverless.yml` to customize this project for your own needs.
 
 ## License
 

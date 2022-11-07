@@ -1,53 +1,85 @@
-service:
-  name: malasada
+service: malasada
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs16.x
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'ap-northeast-1'}
-  iamRoleStatements:
-    - Effect: "Allow"
-      Action:
-        - "s3:GetObject"
-      Resource: "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/*"
-    - Effect: "Allow"
-      Action:
-        - "s3:PutObject"
-      Resource:
-        - "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/wiki/thumb/*"
-        - "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/webp-cache/*"
-    - Effect: "Allow"
-      Action:
-        - "s3:DeleteObject"
-      Resource: "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/webp-cache/*"
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "s3:GetObject"
+          Resource: "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/*"
+        - Effect: "Allow"
+          Action:
+            - "s3:PutObject"
+          Resource:
+            - "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/wiki/thumb/*"
+            - "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/webp-cache/*"
+        - Effect: "Allow"
+          Action:
+            - "s3:DeleteObject"
+          Resource: "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/webp-cache/*"
   environment:
     BUCKET: ${opt:bucket, 'media.52poke.com'}
     REGION: ${opt:region, 'ap-northeast-1'}
   apiGateway:
     binaryMediaTypes:
       - '*/*'
+  architecture: arm64
+
+layers:
+  sharp:
+    path: lambdaLayers/SharpLayer
+    name: ${self:provider.stage}-sharp
+    package:
+      patterns:
+        - node_modules/**
+    description: sharp@0.31.1
+    compatibleRuntimes:
+      - nodejs16.x
+    compatibleArchitectures:
+      - arm64
+    licenseInfo: Apache License 2.0
+    retain: false
 
 plugins:
-  - serverless-plugin-typescript
+  - serverless-esbuild
   - serverless-offline
 
 functions:
   resize:
     handler: src/handlers/resizer/index.handler
+    layers:
+      - !Ref SharpLambdaLayer
     events:
-      - http:
+      - httpApi:
           path: /wiki/thumb/{any+}
-          method: get
+          method: GET
   webp:
     handler: src/handlers/webp/index.handler
+    layers:
+      - !Ref SharpLambdaLayer
     events:
-      - http:
+      - httpApi:
           path: /webp/{any+}
-          method: get
+          method: GET
   webp-purge:
     handler: src/handlers/webp/purge.handler
+    layers:
+      - !Ref SharpLambdaLayer
     events:
-      - http:
+      - httpApi:
           path: /webp/{any+}
-          method: delete
+          method: DELETE
+
+custom:
+  esbuild:
+    external:
+      - concat-stream
+      - http-errors
+    exclude:
+      - aws-sdk
+      - sharp
