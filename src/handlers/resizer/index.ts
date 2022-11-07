@@ -1,10 +1,11 @@
-import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyHandlerV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import resizer from '../../utils/resizer';
 import { serveS3, thumbRegex } from '../../utils';
 import { existS3 } from '../../utils/s3';
+import { HttpError } from 'http-errors';
 
-export const handler: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
-    const match = event.path.match(thumbRegex);
+export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatewayProxyResultV2> => {
+    const match = event.rawPath.match(thumbRegex);
     if (!match) {
         return {
             statusCode: 400,
@@ -27,9 +28,9 @@ export const handler: APIGatewayProxyHandler = async (event): Promise<APIGateway
         return serveS3(target);
     } catch (e) {
         return {
-            statusCode: e.statusCode || 500,
+            statusCode: (e as HttpError).statusCode || 500,
             body: JSON.stringify({
-                error: e.message || JSON.stringify(e),
+                error: (e as HttpError).message || JSON.stringify(e),
             }),
         };
     }

@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 import concat from 'concat-stream';
-import { APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResultV2 } from 'aws-lambda';
 import { readFromS3 } from './s3';
 
 export const thumbRegex = /^\/wiki\/thumb\/(archive\/)?([0-9a-f]\/[0-9a-f][0-9a-f])\/([^\/]+)\/([0-9]+)px-(.*)$/;
@@ -27,7 +27,7 @@ const streamToBuffer = (
     });
 }
 
-export const serveS3 = async (key: string): Promise<APIGatewayProxyResult> => {
+export const serveS3 = async (key: string): Promise<APIGatewayProxyResultV2> => {
     const { headers, readStream } = readFromS3(key);
     const { headersData, buffer } = await streamToBuffer(headers, readStream);
     return {

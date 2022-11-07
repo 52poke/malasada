@@ -1,4 +1,0 @@
-.build
-.serverless
-secrets/secrets.env
-node_modules

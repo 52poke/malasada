@@ -12,7 +12,7 @@ export const existS3 = async (key: string): Promise<boolean> => {
         return true;
     } catch (err) {
         const error = err as AWSError;
-        if (error.code === 'NoSuchKey' || error.code === 'Forbidden') {
+        if (error.code === 'NoSuchKey' || error.code === 'Forbidden' || error.code === 'NotFound') {
             return false;
         }
         throw err;
