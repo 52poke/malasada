@@ -23,17 +23,17 @@
   },
   "homepage": "https://github.com/mudkipme/malasada#readme",
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.108",
+    "@types/aws-lambda": "^8.10.110",
     "@types/concat-stream": "^2.0.0",
     "@types/http-errors": "^2.0.1",
-    "@types/sharp": "^0.31.0",
-    "aws-sdk": "^2.1248.0",
-    "esbuild": "^0.15.13",
-    "serverless": "^3.24.1",
-    "serverless-esbuild": "^1.33.1",
-    "serverless-offline": "^11.2.3",
-    "typescript": "^4.8.4",
-    "sharp": "^0.31.2"
+    "@types/sharp": "^0.31.1",
+    "aws-sdk": "^2.1303.0",
+    "esbuild": "^0.16.17",
+    "serverless": "^3.27.0",
+    "serverless-esbuild": "^1.37.3",
+    "serverless-offline": "^12.0.4",
+    "typescript": "^4.9.4",
+    "sharp": "^0.31.3"
   },
   "dependencies": {
     "concat-stream": "^2.0.0",
