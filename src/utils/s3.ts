@@ -2,9 +2,16 @@ import stream, { Readable } from 'stream';
 import AWS, { S3, AWSError } from 'aws-sdk';
 import createHttpError from 'http-errors';
 
-AWS.config.region = process.env.REGION;
-const s3 = new S3();
-const bucket = process.env.BUCKET as string;
+const s3 = new S3({
+    credentials: process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY ? {
+        accessKeyId: process.env.S3_ACCESS_KEY_ID,
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+    } : undefined,
+    endpoint: process.env.S3_ENDPOINT,
+    region: process.env.S3_REGION,
+    s3ForcePathStyle: true,
+});
+const bucket = process.env.S3_BUCKET as string;
 
 export const existS3 = async (key: string): Promise<boolean> => {
     try {
@@ -12,7 +19,7 @@ export const existS3 = async (key: string): Promise<boolean> => {
         return true;
     } catch (err) {
         const error = err as AWSError;
-        if (error.code === 'NoSuchKey' || error.code === 'Forbidden' || error.code === 'NotFound') {
+        if (error.code === 'NoSuchKey' || error.code === 'Forbidden' || error.code === 'NotFound' || error.code === 'AccessDenied' || error.statusCode === 403 || error.statusCode === 404) {
             return false;
         }
         throw err;

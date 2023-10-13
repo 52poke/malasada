@@ -5,26 +5,29 @@ provider:
   runtime: nodejs16.x
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'ap-northeast-1'}
-  iam:
-    role:
-      statements:
-        - Effect: "Allow"
-          Action:
-            - "s3:GetObject"
-          Resource: "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/*"
-        - Effect: "Allow"
-          Action:
-            - "s3:PutObject"
-          Resource:
-            - "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/wiki/thumb/*"
-            - "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/webp-cache/*"
-        - Effect: "Allow"
-          Action:
-            - "s3:DeleteObject"
-          Resource: "arn:aws:s3:::${opt:bucket, 'media.52poke.com'}/webp-cache/*"
+  # iam:
+  #   role:
+  #     statements:
+  #       - Effect: "Allow"
+  #         Action:
+  #           - "s3:GetObject"
+  #         Resource: "arn:aws:s3:::${env:S3_BUCKET, 'media.52poke.com'}/*"
+  #       - Effect: "Allow"
+  #         Action:
+  #           - "s3:PutObject"
+  #         Resource:
+  #           - "arn:aws:s3:::${env:S3_BUCKET, 'media.52poke.com'}/wiki/thumb/*"
+  #           - "arn:aws:s3:::${env:S3_BUCKET, 'media.52poke.com'}/webp-cache/*"
+  #       - Effect: "Allow"
+  #         Action:
+  #           - "s3:DeleteObject"
+  #         Resource: "arn:aws:s3:::${env:S3_BUCKET, 'media.52poke.com'}/webp-cache/*"
   environment:
-    BUCKET: ${opt:bucket, 'media.52poke.com'}
-    REGION: ${opt:region, 'ap-northeast-1'}
+    S3_BUCKET: ${env:S3_BUCKET, 'media.52poke.com'}
+    S3_REGION: ${env:S3_REGION, 'jp-osa-1'}
+    S3_ENDPOINT: ${env:S3_ENDPOINT, 'https://jp-osa-1.linodeobjects.com'}
+    S3_ACCESS_KEY_ID: ${env:S3_ACCESS_KEY_ID, ''}
+    S3_SECRET_ACCESS_KEY: ${env:S3_SECRET_ACCESS_KEY, ''}
   apiGateway:
     binaryMediaTypes:
       - '*/*'
