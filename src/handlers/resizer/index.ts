@@ -23,7 +23,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event): Promise<APIGatew
     try {
         const targetExists = await existS3(target);
         if (!targetExists) {
-            target = await resizer({ source, target, resize: { width } });
+            target = await resizer({ source, target, resize: { width }, webp: {} });
         }
         return serveS3(target);
     } catch (e) {
