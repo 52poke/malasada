@@ -33,7 +33,7 @@
     "serverless-esbuild": "^1.37.3",
     "serverless-offline": "^12.0.4",
     "typescript": "^4.9.4",
-    "sharp": "^0.31.3"
+    "sharp": "^0.32.6"
   },
   "dependencies": {
     "concat-stream": "^2.0.0",
