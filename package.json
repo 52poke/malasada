@@ -31,7 +31,7 @@
     "esbuild": "^0.25.0",
     "serverless": "^3.27.0",
     "serverless-esbuild": "^1.55.0",
-    "serverless-offline": "^12.0.4",
+    "serverless-offline": "^14.4.0",
     "typescript": "^4.9.4",
     "sharp": "^0.32.6"
   },
