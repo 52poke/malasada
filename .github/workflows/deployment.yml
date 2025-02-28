@@ -33,6 +33,7 @@ jobs:
         S3_BUCKET: ${{ vars.S3_BUCKET }}
         S3_REGION: ${{ vars.S3_REGION }}
         S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+        REGION: ${{ vars.REGION }}
 
     - name: serverless deploy
       uses: serverless/github-action@v3.1
@@ -47,3 +48,4 @@ jobs:
         S3_BUCKET: ${{ vars.S3_BUCKET }}
         S3_REGION: ${{ vars.S3_REGION }}
         S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+        REGION: ${{ vars.REGION }}
