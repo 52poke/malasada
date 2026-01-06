@@ -1,0 +1,9 @@
+# Rust
+/target
+Cargo.lock
+
+# Secrets
+secrets/secrets.env
+
+# System
+.DS_Store
