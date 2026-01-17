@@ -29,9 +29,9 @@
     "@types/sharp": "^0.31.1",
     "aws-sdk": "^2.1354.0",
     "esbuild": "^0.16.17",
-    "serverless": "^3.27.0",
+    "serverless": "^4.31.0",
     "serverless-esbuild": "^1.37.3",
-    "serverless-offline": "^12.0.4",
+    "serverless-offline": "^14.4.0",
     "typescript": "^4.9.4",
     "sharp": "^0.32.6"
   },
