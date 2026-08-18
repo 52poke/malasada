@@ -9,7 +9,7 @@ COPY Cargo.toml Cargo.lock ./
 RUN mkdir src && echo "fn main() {}" > src/main.rs
 
 # Build only the dependencies to cache them
-RUN cargo build --release
+RUN cargo build --release --locked
 
 # Copy the actual source code
 COPY src ./src
@@ -18,7 +18,7 @@ COPY src ./src
 RUN touch src/main.rs
 
 # Build the application
-RUN cargo build --release
+RUN cargo build --release --locked
 
 # Use a minimal base image for the runtime
 FROM debian:bookworm-slim

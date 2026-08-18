@@ -1,6 +1,5 @@
 # Rust
 /target
-Cargo.lock
 
 # Secrets
 secrets/secrets.env

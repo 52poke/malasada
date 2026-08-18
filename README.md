@@ -44,11 +44,11 @@ docker run -d \
 
 ### Local Development
 
-Prerequisites: Rust 1.70+
+Prerequisites: Rust 1.88+
 
 ```bash
 # Install dependencies and run
-carp run --release
+cargo run --release
 ```
 
 ## Deployment Integration
