@@ -1,5 +1,6 @@
-# Use the official Rust image as a builder
-FROM rust:1 AS builder
+# Build on the same Debian release as the runtime image so the binary and
+# runtime use compatible glibc versions.
+FROM rust:1-trixie AS builder
 
 # Create a new empty shell project
 WORKDIR /usr/src/malasada
@@ -21,7 +22,7 @@ RUN touch src/main.rs
 RUN cargo build --release --locked
 
 # Use a minimal base image for the runtime
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 # Install CA certificates for HTTPS (S3) and clean up
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
