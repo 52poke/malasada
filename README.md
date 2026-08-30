@@ -44,7 +44,7 @@ docker run -d \
 
 ### Local Development
 
-Prerequisites: Rust 1.88+
+Prerequisites: Rust 1.94.1+
 
 ```bash
 # Install dependencies and run

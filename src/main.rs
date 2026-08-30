@@ -1,11 +1,12 @@
 use aws_config::BehaviorVersion;
 use aws_sdk_s3::config::{Credentials, Region};
-use axum::{routing::get, Router};
+use axum::{extract::MatchedPath, http::Request, routing::get, Router};
 use dotenvy::dotenv;
 use std::env;
 use std::sync::Arc;
 use tokio::net::TcpListener;
-use tower_http::trace::TraceLayer;
+use tower_http::trace::{DefaultOnFailure, DefaultOnResponse, TraceLayer};
+use tracing::Level;
 
 mod handlers;
 mod image_ops;
@@ -59,12 +60,29 @@ async fn main() {
     let state = Arc::new(AppState { s3_client });
 
     let app = Router::new()
-        .route("/wiki/thumb/*path", get(handlers::handle_resize))
+        .route("/wiki/thumb/{*path}", get(handlers::handle_resize))
         .route(
-            "/webp/*path",
+            "/webp/{*path}",
             get(handlers::handle_webp).delete(handlers::handle_purge),
         )
-        .layer(TraceLayer::new_for_http())
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(|request: &Request<_>| {
+                    let matched_path = request
+                        .extensions()
+                        .get::<MatchedPath>()
+                        .map(MatchedPath::as_str);
+
+                    tracing::info_span!(
+                        "request",
+                        method = %request.method(),
+                        uri = %request.uri(),
+                        matched_path,
+                    )
+                })
+                .on_response(DefaultOnResponse::new().level(Level::INFO))
+                .on_failure(DefaultOnFailure::new().level(Level::ERROR)),
+        )
         .with_state(state);
 
     let port = env::var("PORT").unwrap_or_else(|_| "3000".to_string());
